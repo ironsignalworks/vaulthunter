@@ -75,13 +75,13 @@
     --menu-w: clamp(320px, 90vw, 36rem);
 
     /* type scale */
-    --title-big:clamp(3.8rem,11vw,6.8rem);   /* VAULT HUNTER (larger) */
-    --title-small:clamp(1.2rem,3.5vw,2rem);  /* IRON SIGNAL... (smaller) */
+    --title-big:clamp(3.8rem,11vw,6.8rem);
+    --title-small:clamp(1.2rem,3.5vw,2rem);
     --btn-size:clamp(1.05rem,3.6vw,1.45rem);
-    --log-size:clamp(1.26rem,3.2vw,1.9rem);  /* ~20% larger */
+    --log-size:clamp(1.26rem,3.2vw,1.9rem);
     --brief-title-size:var(--log-size);
-    --brief-body-size:clamp(1.2rem,2.8vw,1.9rem); /* used for hints & numbers */
-    --cs-note-size:clamp(1.35rem,3.8vw,2.15rem);  /* larger name instructions */
+    --brief-body-size:clamp(1.2rem,2.8vw,1.9rem);
+    --cs-note-size:clamp(1.35rem,3.8vw,2.15rem);
     --cs-label-size:clamp(1.15rem,3.2vw,1.7rem);
   }
   html,body{height:100%}
@@ -96,7 +96,7 @@
     min-height:100dvh;min-height:calc(var(--vh)*100);
     -webkit-font-smoothing:none;
     image-rendering:pixelated;
-    overflow:hidden;
+    overflow:hidden;           /* page itself stays fixed; internals scroll */
     touch-action:manipulation;
     user-select:none;
   }
@@ -141,7 +141,7 @@
     gap:clamp(10px,2vh,20px);
     align-items:center;
     justify-items:center;
-    min-height:min(92vh, 900px); /* center block */
+    min-height:min(92vh, 900px);
     grid-auto-rows:min-content;
   }
   .hero{display:grid;gap:.25em;justify-items:center;margin:0;width:100%}
@@ -198,6 +198,7 @@
     font-size:var(--log-size);line-height:1.25;
     scrollbar-gutter: stable both-edges;
     overscroll-behavior: contain;
+    -webkit-overflow-scrolling:touch;
   }
   #log .entry{margin:0 0 8px}
   #log .entry::before{content:'▶ ';color:var(--amber)}
@@ -255,11 +256,10 @@
     color:var(--ink-dim);cursor:pointer;
     outline:1px solid rgba(70,53,22,.35);
     transition:opacity .25s ease;
-    font-size:var(--brief-body-size); /* hint numbers = briefing size */
+    font-size:var(--brief-body-size);
     line-height:1; font-variant-numeric:tabular-nums;
   }
   .tile.scanned{background:transparent;color:var(--ink)}
-  /* Amber numbers + legibility shade/outline */
   .tile.scanned.number{
     color:#ffd36a;
     text-shadow:
@@ -284,30 +284,33 @@
   }
   #toolbar{display:flex;gap:8px;align-items:center}
 
- #stats{
-  border-bottom:0;                  /* no separator line */
-  padding:10px 12px;
-  display:grid;
-  grid-template-columns:auto 1fr;
-  gap:6px 10px;
-  font-size:clamp(1.8rem,3.2vw,1.7rem);
-}
-#stats .label{color:var(--ink-dim)}
+  #stats{
+    border-bottom:0;
+    padding:10px 12px;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:6px 10px;
+    font-size:clamp(1.8rem,3.2vw,1.7rem);
+  }
+  #stats .label{color:var(--ink-dim)}
 
-#suit{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  image-rendering:pixelated;
-  filter:contrast(1.05) saturate(.95);
-  transform:translate(20%,-30%) scale(1); /* → 20% right, ↑ 30% up */
-  transform-origin:center;
-}
+  #suit{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    image-rendering:pixelated;
+    filter:contrast(1.05) saturate(.95);
+    transform:translate(20%,-30%) scale(1);
+    transform-origin:center;
+  }
 
   /* ================== MODALS ================== */
   .overlay{
     position:absolute;inset:0;display:grid;place-items:center;z-index:200;
     background:rgba(0,0,0,.28);
+    padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
+    overflow:auto;                    /* MOBILE: allow overlay scroll if needed */
+    -webkit-overflow-scrolling:touch;
   }
   .card{
     background:linear-gradient(#16140c,#0f0e09);
@@ -323,7 +326,7 @@
     gap:10px;
   }
   .card h2{margin:.1em 0 .2em;color:var(--amber)}
-  .card .scroll{min-height:0;overflow:auto;scrollbar-gutter:stable both-edges}
+  .card .scroll{min-height:0;overflow:auto;scrollbar-gutter:stable both-edges;-webkit-overflow-scrolling:touch}
   .card .actions{display:grid;gap:10px}
   .card .actions .btn{width:100%}
 
@@ -353,23 +356,46 @@
   body.modal-open #hud { pointer-events:none; }
   body.modal-open .overlay { pointer-events:auto; }
 
-  /* Mobile tweaks */
-  @media (max-width:1100px){
-    :root{ --ui-scale:1; }
-    #hud{grid-template-columns:1fr;grid-template-rows:28vh 1fr 34vh}
-    .brief,.end-brief{grid-template-columns:1fr}
-    #toolbar{gap:6px}
+  /* ============ MOBILE TWEAKS (no clip, add scroll) ============ */
+ @media (max-width:1100px){
+  :root{ --ui-scale:1; }
+
+  /* allow the app to scroll vertically on phones */
+  #game{
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
   }
-  @media (max-width:520px){
-    .hero .line2{font-size:clamp(2.6rem,12vw,4rem)}
-    .hero .line1{font-size:clamp(1rem,4vw,1.4rem)}
-    #map{gap:1px;border-width:4px}
-    .btn{min-height:46px}
-    .callsign{grid-template-columns:1fr;gap:8px}
-    #cs-input{width:100%}
-    #map-head{font-size:clamp(1.05rem,3.8vw,1.3rem)}
-    #map-clock{font-size:clamp(1.6rem,8vw,2.2rem)}
+
+  /* BIGGER sections: log / MAP / status */
+  #hud{
+    grid-template-columns:1fr;
+    /* taller center map row; others roomy too */
+    grid-template-rows: minmax(28vh,auto) minmax(64vh,auto) minmax(36vh,auto);
+    height:100%;                 /* keeps panel heights measurable */
+    gap:clamp(8px, 2.5vw, 14px);
   }
+
+  /* each panel scrolls if its content overflows */
+  .panel{
+    min-height:0;
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-gutter:stable both-edges;
+  }
+
+  /* keep inner layouts from clipping */
+  #map-panel{grid-template-rows:auto minmax(0,1fr) auto}
+  #status-panel{grid-template-rows:auto auto minmax(0,1fr)}
+
+  /* suit stays fully visible */
+  #suit{
+    transform:translate(0,0) scale(1);
+    max-height:100%;
+  }
+
+  .brief,.end-brief{grid-template-columns:1fr}
+  #toolbar{gap:6px}
+}
 </style>
 </head>
 <body>
@@ -753,19 +779,26 @@
   const setBest = v => localStorage.setItem('vh_best_scans', String(v));
 
   /* map size (fixed & square, computed ONLY at start/resize) */
-  function setMapSize(){
-    const pad = 12;
-    const panel = EL.mapPanel.getBoundingClientRect();
-    const headH = EL.mapHead.getBoundingClientRect().height;
-    const footH = EL.mapFoot.getBoundingClientRect().height;
-    const availH = panel.height - headH - footH - pad*2;
-    const availW = panel.width - pad*2;
-    const size = Math.floor(Math.min(availW, availH));
-    const px = Math.max(220, size);
-    EL.map.style.width = px+'px';
-    EL.map.style.height = px+'px';
-  }
-  addEventListener('resize', setMapSize, {passive:true});
+function setMapSize(){
+  const pad = 12;
+  const panel = EL.mapPanel.getBoundingClientRect();
+  const headH = EL.mapHead.getBoundingClientRect().height;
+  const footH = EL.mapFoot.getBoundingClientRect().height;
+
+  const innerW = panel.width  - pad*2;
+  const innerH = panel.height - headH - footH - pad*2;
+
+  // square that never exceeds the available area
+  const side = Math.floor(Math.max(160, Math.min(innerW, innerH)));
+
+  EL.map.style.width  = side + 'px';
+  EL.map.style.height = side + 'px';
+}
+
+addEventListener('orientationchange', () => {
+  setVH();
+  requestAnimationFrame(setMapSize);
+}, {passive:true});
 
   /* LOG */
   function log(line){
@@ -937,8 +970,8 @@
     STATE.baseG = L.baseG;
     STATE.noise = L.noise;
     STATE.geiger = L.baseG;
-    STATE.scans = 0;            // reset scans at new level only
-    clearClock();               // new level gets a fresh mission clock
+    STATE.scans = 0;
+    clearClock();
 
     EL.map.style.backgroundImage = `url("assets/locations/location_${L.bg}.png")`;
     EL.mapLevel.textContent = `LEVEL ${idx+1}`;
@@ -971,7 +1004,7 @@
     EL.briefGo.onclick = ()=>{
       closeAll();
       STATE.running = true;
-      startClock(L.timer);   // timer begins now and pauses only during modals
+      startClock(L.timer);
     };
   }
 
@@ -1000,7 +1033,6 @@
   function finish(win){
     STATE.running=false; pauseTimer(true); clearClock();
 
-    // if win + last level => show finale instead
     if(win && STATE.levelIdx === LEVELS.length-1){
       const best = getBest();
       if(best==null || STATE.scans < best){ setBest(STATE.scans); }
@@ -1022,7 +1054,6 @@
 
       try{ EL.sfx.win.currentTime=0; EL.sfx.win.play().catch(()=>{});}catch{}
 
-      // update best score (fewest scans)
       if(best==null || STATE.scans < best){ setBest(STATE.scans); }
       EL.endBest.textContent = `Best score (fewest scans): ${showBest(getBest())} • This level: ${STATE.scans} scans`;
 
@@ -1033,9 +1064,9 @@
 
       EL.endNext.textContent = 'NEXT SITE';
       EL.endNext.onclick = ()=>{
-        stopEndSFX(); // stop victory.mp3 immediately
+        stopEndSFX();
         closeAll();
-        startLevel(STATE.levelIdx+1); // main.mp3 resumes in startLevel
+        startLevel(STATE.levelIdx+1);
       };
       EL.endRetry.onclick = ()=>{
         stopEndSFX();
@@ -1067,7 +1098,6 @@
   }
 
   /* MENU / GLOBAL */
-  // Start menu music on first user interaction anywhere (required by browsers)
   addEventListener('pointerdown', ()=>{ playMenuMusic(); }, { once:true, passive:true });
 
   function goToMenu(resetAudio=false, resetToFirst=false){
@@ -1096,13 +1126,13 @@
     stopMenuMusic();
     EL.menu.classList.add('hidden');
     EL.hud.classList.remove('hidden');
-    runProgress.idx = 0;                 // ALWAYS start from level one (Kramatorsk)
+    runProgress.idx = 0;
     startLevel(runProgress.idx);
   });
 
   EL.btnMenu.addEventListener('click', ()=> goToMenu(true, /*resetToFirst*/true));
 
-  // MUTE toggle (no emoji, same size as MENU because both use .btn.mini)
+  // MUTE toggle
   function collectAndApplyMute(){
     collectAudio();
     const savedMute = localStorage.getItem('vh_muted')==='1';
