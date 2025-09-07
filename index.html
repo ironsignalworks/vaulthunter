@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>VAULT HUNTER</title>
+
+<!-- Mobile + PWA friendly -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=overlays-content" />
+<meta name="theme-color" content="#0b0b05" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="format-detection" content="telephone=no" />
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
+<link rel="icon" href="favicon.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="manifest" href="site.webmanifest" />
+
+<!-- SEO / Social share card -->
+<link rel="canonical" href="https://example.com/vault-hunter" />
+<meta name="description" content="Hunt the source. Contain the glow. Join Special Agent Rat in a tile-scanning thriller across infamous hotspots." />
+<meta property="og:site_name" content="VAULT HUNTER" />
+<meta property="og:title" content="VAULT HUNTER" />
+<meta property="og:description" content="Hunt the source. Contain the glow. Join Special Agent Rat in a tile-scanning thriller across infamous hotspots." />
+<meta property="og:url" content="https://example.com/vault-hunter" />
+<meta property="og:image" content="poster.png" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="VAULT HUNTER" />
+<meta name="twitter:description" content="Hunt the source. Contain the glow. Join Special Agent Rat in a tile-scanning thriller across infamous hotspots." />
+<meta name="twitter:image" content="poster.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
+
+<style>
+  /* ================== PALETTE / BASE ================== */
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --panel-bg:#12110b;
+    --monitor-bg:#0b0b05;
+    --ink:#ffd36a;
+    --ink-dim:#caa553;
+    --amber:#ffb000;
+    --red:#e2482a;
+    --yellow:#ffe16a;
+    --cyan:#7fe5e5;
+    --grid:#4a3a17;
+    --frame:#8c3e10;
+
+    --px:2px;
+    --gap:clamp(8px,2vw,18px);
+    --base:clamp(14px,1.8vw,20px);
+    --vh:1vh;
+
+    --ui-scale:.94;
+
+    /* centered menu width — tighter */
+    --menu-w: clamp(320px, 90vw, 36rem);
+
+    /* type scale */
+    --title-big:clamp(3.8rem,11vw,6.8rem);   /* VAULT HUNTER (larger) */
+    --title-small:clamp(1.2rem,3.5vw,2rem);  /* IRON SIGNAL... (smaller) */
+    --btn-size:clamp(1.05rem,3.6vw,1.45rem);
+    --log-size:clamp(1.26rem,3.2vw,1.9rem);  /* ~20% larger */
+    --brief-title-size:var(--log-size);
+    --brief-body-size:clamp(1.2rem,2.8vw,1.9rem); /* used for hints & numbers */
+    --cs-note-size:clamp(1.35rem,3.8vw,2.15rem);  /* larger name instructions */
+    --cs-label-size:clamp(1.15rem,3.2vw,1.7rem);
+  }
+  html,body{height:100%}
+  html{color-scheme:dark}
+  body{
+    margin:0;
+    font-family:'VT323',monospace;
+    font-size:var(--base);
+    color:var(--ink);
+    background:repeating-linear-gradient(0deg,#0a0a06 0 2px,#0b0b05 2px 4px);
+    display:grid;place-items:center;
+    min-height:100dvh;min-height:calc(var(--vh)*100);
+    -webkit-font-smoothing:none;
+    image-rendering:pixelated;
+    overflow:hidden;
+    touch-action:manipulation;
+    user-select:none;
+  }
+  .hidden{display:none!important}
+  body.modal-open{overflow:hidden} /* lock play screen while a modal is open */
+
+  /* ======= subtle CRT ======= */
+  .crt{
+    position:fixed;inset:0;pointer-events:none;z-index:100;
+    background:
+      linear-gradient(to bottom,transparent 50%,rgba(255,174,0,.07) 50%),
+      linear-gradient(to right,rgba(255,174,0,.07) 1px,transparent 1px);
+    background-size:100% 3px,3px 100%;
+    opacity:.6;
+  }
+
+  /* ======= fixed scaler (no drift) ======= */
+  #scale{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+  #game{
+    width:calc(100vw/var(--ui-scale));
+    height:calc(100vh/var(--ui-scale));
+    transform:scale(var(--ui-scale));
+    transform-origin:top left;
+    background:var(--panel-bg);
+    outline:var(--px) solid var(--frame);
+    box-shadow:0 0 0 calc(var(--px)*2)#2a1e0b inset,0 0 0 calc(var(--px)*3) var(--grid) inset;
+    padding:clamp(8px,1.6vw,14px);
+    display:flex;flex-direction:column;overflow:hidden;position:relative;min-width:0;min-height:0;
+  }
+
+  /* ================== MENU (CENTERED) ================== */
+  #menu{
+    display:grid;place-items:center;
+    width:100%;height:100%;text-align:center;position:relative;
+    background-image:url("poster.png");
+    background-size:cover;background-position:top center;
+    filter:contrast(.95) saturate(.88);
+  }
+  .menu-wrap{
+    width:var(--menu-w);
+    display:grid;
+    gap:clamp(10px,2vh,20px);
+    align-items:center;
+    justify-items:center;
+    min-height:min(92vh, 900px); /* center block */
+    grid-auto-rows:min-content;
+  }
+  .hero{display:grid;gap:.25em;justify-items:center;margin:0;width:100%}
+  .hero .line1{font-size:var(--title-small);color:var(--amber);letter-spacing:.05em;margin:0;text-shadow:0 1px 0 #3a2a10}
+  .hero .line2{font-size:var(--title-big);color:var(--amber);letter-spacing:.02em;margin:0;text-shadow:0 1px 0 #3a2a10;line-height:.95}
+  .actions{display:grid;gap:10px;justify-items:center;width:100%}
+  .btn{
+    font-family:'VT323',monospace;font-size:var(--btn-size);
+    color:var(--ink);letter-spacing:.04em;cursor:pointer;border-radius:0;
+    background:linear-gradient(#15130c,#0f0e09);
+    border:var(--px) solid var(--frame);
+    box-shadow:0 0 0 var(--px) #2e2210 inset,0 0 0 calc(var(--px)*2) #1a1308 inset;
+    padding:12px 18px;
+    width:100%;
+    min-height:50px;
+    display:grid;place-items:center;
+    white-space:nowrap;
+    touch-action:manipulation;
+  }
+  .btn:hover,.btn:focus-visible{outline:none;border-color:var(--red);color:var(--yellow);filter:contrast(1.08)}
+  .btn.mini{width:auto;min-height:auto;padding:8px 14px;font-size:clamp(1rem,2.4vw,1.35rem)}
+  .btn.toggle[aria-pressed="true"]{border-color:#666;color:#888}
+
+  .callsign{
+    width:100%;
+    padding:12px;
+    background:linear-gradient(#17140d,#0f0e09);
+    border:var(--px) solid var(--frame);
+    box-shadow:0 0 0 var(--px) #2e2210 inset,0 0 0 calc(var(--px)*2) #1a1308 inset;
+    display:grid;grid-template-columns:1fr auto;gap:10px;justify-items:start;align-items:center;
+  }
+  .callsign p{
+    margin:0 0 8px 0;color:var(--ink-dim);grid-column:1/-1;text-align:left;
+    font-size:var(--cs-note-size); line-height:1.15;
+  }
+  .cs-label{
+    grid-column:1/-1;text-align:left;margin:0;color:var(--ink);font-size:var(--cs-label-size);
+  }
+  #cs-input{font:inherit;color:var(--ink);background:#0e0d09;border:var(--px) solid var(--grid);padding:10px 12px;width:100%}
+
+  /* ================== HUD: three panels ================== */
+  #hud{display:grid;grid-template-columns:26rem 1fr 26rem;gap:var(--gap);min-height:0;height:100%}
+  .panel{
+    border:var(--px) solid var(--frame);background:linear-gradient(#14130c,#0f0e09);
+    box-shadow:0 0 0 var(--px) #2a1e0b inset,0 0 0 calc(var(--px)*2) #1b1308 inset;
+    min-width:0;min-height:0;overflow:hidden;display:grid;
+  }
+
+  /* LEFT: log */
+  #log-panel{grid-template-rows:auto 1fr}
+  #log-title{margin:0;padding:8px 10px;border-bottom:2px solid var(--grid);color:var(--amber)}
+  #log{
+    padding:10px 12px 18px;overflow:auto;color:var(--ink-dim);
+    font-size:var(--log-size);line-height:1.25;
+    scrollbar-gutter: stable both-edges;
+    overscroll-behavior: contain;
+  }
+  #log .entry{margin:0 0 8px}
+  #log .entry::before{content:'▶ ';color:var(--amber)}
+
+  /* CENTER: header . map . big timer */
+  #map-panel{grid-template-rows:auto 1fr auto;gap:6px;padding:8px}
+  #map-head{
+    display:flex;align-items:center;gap:.6em;justify-content:center;
+    margin:0; padding:6px 8px; color:var(--amber);
+    border:2px solid var(--grid); background:rgba(0,0,0,.28);
+    font-size:calc(var(--log-size)*.95); letter-spacing:-0.5px;
+    flex-wrap:wrap;
+    text-align:center;
+  }
+  .dot{opacity:.7;margin:0 .35em}
+  #map-foot{
+    display:grid;place-items:center;
+    padding:4px 8px; border:2px solid var(--grid); background:rgba(0,0,0,.28);
+  }
+  #map-clock{
+    color:var(--red);
+    font-variant-numeric:tabular-nums;
+    font-size:clamp(2rem,6.8vw,3.2rem);
+    letter-spacing:.03em;
+  }
+  #scan-label{color:var(--ink-dim)}
+  #map-wrap{display:grid;place-items:center;min-height:0;contain:layout paint size}
+  #map{
+    width:512px;height:512px; /* firmly square; resized by JS once to fit */
+    aspect-ratio:1/1;
+    display:grid;
+    grid-template-columns:repeat(10, minmax(0, 1fr));
+    grid-template-rows:repeat(10, 1fr);
+    gap:2px;
+    background-color:var(--grid);
+    background-image:url("assets/locations/location_1.png");
+    background-size:cover;background-position:center;
+    border:6px solid var(--frame);border-radius:6px;
+    box-shadow:inset 0 0 0 3px #2a1e0b, inset 0 0 0 6px #1b1308;
+    overflow:hidden;position:relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #map::after{
+    content:"";position:absolute;inset:2px;pointer-events:none;
+    background:
+      repeating-linear-gradient(0deg,rgba(255,200,80,.10) 0 1px,transparent 1px 72px),
+      repeating-linear-gradient(90deg,rgba(255,200,80,.10) 0 1px,transparent 1px 72px);
+    box-shadow:inset 0 0 0 2px rgba(140,62,16,.18);
+  }
+  .tile{
+    width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,rgba(24,20,12,.96),rgba(18,16,10,.96)),
+               repeating-linear-gradient(45deg,rgba(255,200,80,.06) 0 2px,rgba(255,200,80,0) 2px 4px);
+    color:var(--ink-dim);cursor:pointer;
+    outline:1px solid rgba(70,53,22,.35);
+    transition:opacity .25s ease;
+    font-size:var(--brief-body-size); /* hint numbers = briefing size */
+    line-height:1; font-variant-numeric:tabular-nums;
+  }
+  .tile.scanned{background:transparent;color:var(--ink)}
+  /* Amber numbers + legibility shade/outline */
+  .tile.scanned.number{
+    color:#ffd36a;
+    text-shadow:
+      0 0 2px #000,
+      0 0 4px #000,
+      1px 0 0 #000,
+      -1px 0 0 #000,
+      0 1px 0 #000,
+      0 -1px 0 #000;
+    -webkit-text-stroke:1px rgba(0,0,0,.75);
+  }
+  .tile.scanned.radiation{color:var(--yellow)}
+  .tile.scanned.intel{color:var(--cyan)}
+  .tile.scanned.source{color:var(--red)}
+
+  /* RIGHT: stats on top, suit below; toolbar with MUTE + MENU */
+  #status-panel{grid-template-rows:auto auto 1fr;gap:6px}
+  #greet{
+    margin:0;padding:10px;border-bottom:2px solid var(--grid);
+    font-size:calc(var(--log-size)*.95);
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+  }
+  #toolbar{display:flex;gap:8px;align-items:center}
+
+ #stats{
+  border-bottom:0;                  /* no separator line */
+  padding:10px 12px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:6px 10px;
+  font-size:clamp(1.8rem,3.2vw,1.7rem);
+}
+#stats .label{color:var(--ink-dim)}
+
+#suit{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  image-rendering:pixelated;
+  filter:contrast(1.05) saturate(.95);
+  transform:translate(20%,-30%) scale(1); /* → 20% right, ↑ 30% up */
+  transform-origin:center;
+}
+
+  /* ================== MODALS ================== */
+  .overlay{
+    position:absolute;inset:0;display:grid;place-items:center;z-index:200;
+    background:rgba(0,0,0,.28);
+  }
+  .card{
+    background:linear-gradient(#16140c,#0f0e09);
+    border:var(--px) solid var(--frame);
+    box-shadow:0 0 0 var(--px) #2a1e0b inset,0 0 0 calc(var(--px)*2) #1b1308 inset;
+    color:var(--ink);
+    width:min(96vw, 1200px);
+    max-height:94vh;
+    overflow:hidden;
+    padding:16px;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr) auto;
+    gap:10px;
+  }
+  .card h2{margin:.1em 0 .2em;color:var(--amber)}
+  .card .scroll{min-height:0;overflow:auto;scrollbar-gutter:stable both-edges}
+  .card .actions{display:grid;gap:10px}
+  .card .actions .btn{width:100%}
+
+  /* Intel modal image scales w/ preserved aspect ratio */
+  #intel-img{max-width:100%;max-height:60vh;width:auto;height:auto;display:block;margin:8px auto;image-rendering:pixelated}
+
+  /* Briefing: Special Agent Rat left, story right; no border on rat */
+  .brief{
+    display:grid;grid-template-columns:minmax(220px,36%) 1fr;gap:16px;align-items:start;
+    padding:10px;background:rgba(0,0,0,.28)
+  }
+  .brief img{width:100%;height:auto;object-fit:contain;image-rendering:pixelated;border:none}
+  .brief .brief-title{font-size:var(--brief-title-size);margin:.2em 0 .4em}
+  .brief .brief-body{font-size:var(--brief-body-size);line-height:1.35;color:var(--ink-dim)}
+  .brief .rat-line{color:var(--amber);font-style:italic}
+
+  /* End layout mirrors briefing: art left, copy right */
+  .end-brief{
+    display:grid;grid-template-columns:minmax(220px,36%) 1fr;gap:16px;align-items:start;
+    padding:10px;background:rgba(0,0,0,.28)
+  }
+  .end-brief img{width:100%;height:auto;object-fit:contain;image-rendering:pixelated;border:none}
+  #end-text{font-size:var(--brief-body-size);line-height:1.35;color:var(--ink-dim)}
+  #end-best{font-size:calc(var(--log-size)*.9); color:var(--ink-dim); margin-top:.6em}
+
+  /* prevent interacting with play screen beneath overlays */
+  body.modal-open #hud { pointer-events:none; }
+  body.modal-open .overlay { pointer-events:auto; }
+
+  /* Mobile tweaks */
+  @media (max-width:1100px){
+    :root{ --ui-scale:1; }
+    #hud{grid-template-columns:1fr;grid-template-rows:28vh 1fr 34vh}
+    .brief,.end-brief{grid-template-columns:1fr}
+    #toolbar{gap:6px}
+  }
+  @media (max-width:520px){
+    .hero .line2{font-size:clamp(2.6rem,12vw,4rem)}
+    .hero .line1{font-size:clamp(1rem,4vw,1.4rem)}
+    #map{gap:1px;border-width:4px}
+    .btn{min-height:46px}
+    .callsign{grid-template-columns:1fr;gap:8px}
+    #cs-input{width:100%}
+    #map-head{font-size:clamp(1.05rem,3.8vw,1.3rem)}
+    #map-clock{font-size:clamp(1.6rem,8vw,2.2rem)}
+  }
+</style>
+</head>
+<body>
+  <div class="crt" aria-hidden="true"></div>
+
+  <div id="scale">
+    <div id="game" role="application" aria-label="VAULT HUNTER">
+
+      <!-- ================== MAIN MENU ================== -->
+      <section id="menu">
+        <div class="menu-wrap">
+          <div class="hero">
+            <h1 class="line1">IRON SIGNAL WORKS PRESENTS</h1>
+            <h1 class="line2">VAULT HUNTER</h1>
+          </div>
+
+          <div class="actions">
+            <button id="btn-start" class="btn">[ START MISSION ]</button>
+            <button id="btn-help" class="btn">[ INSTRUCTIONS ]</button>
+
+            <div class="callsign">
+              <p>Howdy <b id="cs-preview">Ranger</b></p>
+              <label for="cs-input" class="cs-label">Your name</label>
+              <input id="cs-input" type="text" maxlength="28" spellcheck="false" placeholder="Type here…" />
+              <button id="cs-rand" class="btn" style="width:auto">RANDOM NAME</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- audio -->
+        <audio id="mus-menu" preload="none" loop><source src="music/menu.mp3" type="audio/mpeg" /></audio>
+        <audio id="mus-game" preload="none" loop><source src="music/main.mp3" type="audio/mpeg" /></audio>
+        <audio id="sfx-signal" preload="auto"><source src="music/signal.wav" type="audio/wav" /></audio>
+        <audio id="sfx-rad" preload="auto"><source src="music/radiation.wav" type="audio/wav" /></audio>
+        <audio id="sfx-radio" preload="auto"><source src="music/radio.wav" type="audio/wav" /></audio>
+        <audio id="sfx-win" preload="none"><source src="music/victory.mp3" type="audio/mpeg" /></audio>
+        <audio id="sfx-hit" preload="auto"><source src="music/warhead.wav" type="audio/wav" /></audio>
+        <audio id="sfx-lose" preload="auto"><source src="music/gameover.wav" type="audio/wav" /></audio>
+      </section>
+
+      <!-- ================== HUD (GAME) ================== -->
+      <section id="hud" class="hidden">
+        <!-- Left: log -->
+        <aside id="log-panel" class="panel">
+          <h3 id="log-title">EVENT LOG</h3>
+          <div id="log" role="log" aria-live="polite"></div>
+        </aside>
+
+        <!-- Center: map -->
+        <main id="map-panel" class="panel">
+          <div id="map-head">
+            <span id="map-level">LEVEL 1</span>
+            <span class="dot">•</span>
+            <span id="map-title">Location</span>
+            <span class="dot">•</span>
+            <span id="scan-label">SCANS:</span>
+            <span id="scan-count">0</span>
+          </div>
+
+          <div id="map-wrap"><div id="map" role="grid" aria-label="Map grid"></div></div>
+
+          <div id="map-foot">
+            <span id="map-clock">06:00</span>
+          </div>
+        </main>
+
+        <!-- Right: stats on top, suit below; toolbar with MUTE + MENU -->
+        <aside id="status-panel" class="panel">
+          <h3 id="greet">
+            <span>Howdy, <span id="greet-name">Ranger</span>!</span>
+            <span id="toolbar">
+              <button id="btn-mute" class="btn mini toggle" aria-pressed="false" aria-label="Mute / Unmute">MUTE</button>
+              <button id="btn-menu" class="btn mini">MENU</button>
+            </span>
+          </h3>
+          <div id="stats" aria-live="polite">
+            <span class="label">ENERGY</span><span id="st-energy">100%</span>
+            <span class="label">SOURCE</span><span id="st-source">0/1</span>
+            <span class="label">GEIGER</span><span id="st-geiger">0.0 uSv/h</span>
+          </div>
+          <div id="suit-box"><img id="suit" src="suit.png" alt="Suit" loading="lazy" /></div>
+        </aside>
+      </section>
+
+      <!-- ================== MODALS ================== -->
+      <!-- Instructions -->
+      <div id="modal-help" class="overlay hidden" role="dialog" aria-modal="true">
+        <div class="card" style="width:min(96vw,900px)">
+          <h2>HOW TO PLAY</h2>
+          <div class="scroll">
+            <div class="brief" style="grid-template-columns:1fr">
+              <div class="brief-body">
+                <p style="margin-top:0">
+                  You and <b>Special Agent Rat</b> are back on contract—partners in grit and Geigers. The job:
+                  track down and contain a chain of <b>highly radioactive hotspots</b> scattered across the world before they make more trouble.
+                  Read the terrain, follow the hints, and make every place you visit blissfully boring again.
+                </p>
+                <p style="margin:.4em 0 0"><b>Controls &amp; Symbols</b></p>
+                <ul style="margin:.2em 0 0 1.2em;padding:0">
+                  <li>Tap tiles to <b>scan</b>. Numbers (0–6) are heat toward the source (higher = closer).</li>
+                  <li><span style="color:#ffe16a">≈ Radiation</span>, <span style="color:#7fe5e5">✶ Intel</span>, <span style="color:#e2482a">☢ Source</span>.</li>
+                  <li>Intel may reveal tips or flavor; the mission clock only pauses during pop-ups.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="actions"><button id="help-close" class="btn">CLOSE</button></div>
+        </div>
+      </div>
+
+      <!-- Intel -->
+      <div id="modal-intel" class="overlay hidden" role="dialog" aria-modal="true">
+        <div class="card">
+          <h2>INTEL RECOVERED</h2>
+          <div class="scroll">
+            <img id="intel-img" alt="">
+            <div id="intel-text" class="brief-body" style="text-align:center"></div>
+          </div>
+          <div class="actions"><button id="intel-close" class="btn">CLOSE</button></div>
+        </div>
+      </div>
+
+      <!-- Briefing (Special Agent Rat) -->
+      <div id="modal-brief" class="overlay hidden" role="dialog" aria-modal="true">
+        <div class="card">
+          <h2 id="brief-title" class="brief-title">Site — Briefing</h2>
+          <div class="scroll">
+            <div class="brief">
+              <img id="brief-img" src="rat.png" alt="Special Agent Rat">
+              <div class="brief-copy">
+                <div id="brief-body" class="brief-body"></div>
+              </div>
+            </div>
+          </div>
+          <div class="actions"><button id="brief-go" class="btn">LET'S GO</button></div>
+        </div>
+      </div>
+
+      <!-- End / Retry (per-site) -->
+      <div id="modal-end" class="overlay hidden" role="dialog" aria-modal="true">
+        <div class="card" style="width:min(96vw,1000px)">
+          <h2 id="end-title">CONTAINMENT FAILURE</h2>
+          <div class="scroll">
+            <div class="end-brief">
+              <img id="end-art" src="" alt="Special Agent Rat" />
+              <div>
+                <div id="end-text"></div>
+                <div id="end-best"></div>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="end-next" class="btn">NEXT SITE</button>
+            <button id="end-retry" class="btn">RETRY SITE</button>
+            <button id="end-close" class="btn">CLOSE</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final Victory -->
+      <div id="modal-finale" class="overlay hidden" role="dialog" aria-modal="true">
+        <div class="card" style="width:min(96vw,1100px)">
+          <h2 id="finale-title">GLOBAL CONTAINMENT ACHIEVED</h2>
+          <div class="scroll">
+            <div class="end-brief">
+              <img id="finale-art" src="victory2.png" alt="Special Agent Rat salutes" />
+              <div>
+                <div id="finale-text" class="brief-body"></div>
+                <div id="finale-best" class="brief-body" style="opacity:.85;margin-top:.6em"></div>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="finale-close" class="btn">TO MAIN MENU</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  /* viewport vh fix */
+  const setVH=()=>document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px');
+  setVH(); addEventListener('resize', setVH, {passive:true});
+
+  /* helpers */
+  const $ = (s, r=document)=>r.querySelector(s);
+  const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+  const fmt = s => `${String((s/60)|0).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
+  /* prevent closing overlays with ESC / outside */
+  window.addEventListener('keydown', e=>{
+    if(document.body.classList.contains('modal-open') && e.key==='Escape'){ e.preventDefault(); }
+  });
+
+  /* codename generator */
+  const LEFT  = ["Atomic","Rusty","Frisky","Busted","Rad","Plutonium","Gamma","Hot","Greasy","Wobbly","Wild","Sneaky","Stubborn","Leaky","Dirty","Neutron"];
+  const RIGHT = ["Viper","Skunk","Crane","Compass","Rod","Bear","Raccoon","Otter","Badger","Goose","Elephant","Walker","Gator","Coyote","Pigeon","Bulldog"];
+  const randName = ()=> `${LEFT[(Math.random()*LEFT.length)|0]} ${RIGHT[(Math.random()*RIGHT.length)|0]}`;
+
+  /* elements */
+  const EL = {
+    menu:$('#menu'), hud:$('#hud'),
+    start:$('#btn-start'), help:$('#btn-help'),
+    csInput:$('#cs-input'), csPreview:$('#cs-preview'), csRand:$('#cs-rand'),
+    greetName:$('#greet-name'), btnMenu:$('#btn-menu'), btnMute:$('#btn-mute'),
+
+    log:$('#log'),
+    map:$('#map'), mapWrap:$('#map-wrap'), mapPanel:$('#map-panel'),
+    mapHead:$('#map-head'), mapFoot:$('#map-foot'),
+    mapLevel:$('#map-level'), mapTitle:$('#map-title'), mapClock:$('#map-clock'),
+    scanCount:$('#scan-count'),
+
+    stats:{ energy:$('#st-energy'), source:$('#st-source'), geiger:$('#st-geiger') },
+    suit:$('#suit'),
+
+    mus:{ menu:$('#mus-menu'), game:$('#mus-game') },
+    sfx:{ signal:$('#sfx-signal'), rad:$('#sfx-rad'), radio:$('#sfx-radio'), win:$('#sfx-win'), hit:$('#sfx-hit'), lose:$('#sfx-lose') },
+
+    modHelp:$('#modal-help'), helpClose:$('#help-close'),
+    modIntel:$('#modal-intel'), intelImg:$('#intel-img'), intelText:$('#intel-text'), intelClose:$('#intel-close'),
+    modBrief:$('#modal-brief'), briefTitle:$('#brief-title'), briefBody:$('#brief-body'), briefGo:$('#brief-go'),
+    modEnd:$('#modal-end'), endTitle:$('#end-title'), endText:$('#end-text'),
+    endNext:$('#end-next'), endRetry:$('#end-retry'), endClose:$('#end-close'), endArt:$('#end-art'), endBest:$('#end-best'),
+
+    modFinale:$('#modal-finale'), finaleTitle:$('#finale-title'), finaleText:$('#finale-text'),
+    finaleBest:$('#finale-best'), finaleClose:$('#finale-close')
+  };
+
+  /* Special Agent Rat — multi-line lore per site (full story + quote) */
+  const LORE = {
+    kramatorsk: [
+      `You were called to a drab apartment block in <b>Kramatorsk</b>. Rumors say a “glowing trinket” was passed around for luck. Luck ran out. Families got sick. Find the source and make this place boring again.<br><br><span class="rat-line">Special Agent Rat:</span> “Mmm-hmm… smells like trouble, darlin’. Let’s rip ’em walls apart!”`,
+      `A mailbox row hums softly and the elevator wheezes. Neighbors whisper about headaches on the lower floors. The pattern is older than the paint—and louder than the gossip.<br><br><span class="rat-line">Special Agent Rat:</span> “Symptoms point down. Trust ’em. Work the core, not the corners.”`,
+      `Cracked plaster along column four, quick patch jobs, a trail of curiosity and fear. Somewhere in these walls a hot secret slept through the eighties.<br><br><span class="rat-line">Special Agent Rat:</span> “Secrets itch. We scratch.”`,
+      `A repair log and a rust-bloomed stairwell. The clicks line up with memory and misfortune.<br><br><span class="rat-line">Special Agent Rat:</span> “Find the trinket. Make it quiet.”`
+    ],
+    tmi: [
+      `Anxious whispers ride the river by <b>Three Mile Island</b>. Old pipes, older secrets. Locals swear their counters click like crickets at dusk. Track the bite, fix the night.<br><br><span class="rat-line">Special Agent Rat:</span> “Y’all ready? I brought extra claws.”`,
+      `A valve chart with coffee stains; a loop that eastward hisses more than it should. The plant remembers even when men forget.<br><br><span class="rat-line">Special Agent Rat:</span> “Bypass on row three. Noise ain’t signal—cut through it.”`,
+      `Crane lines groan and badge logs disagree. The quietest corridor is rarely innocent.<br><br><span class="rat-line">Special Agent Rat:</span> “Chase the slope, not the squeal.”`,
+      `Condensation maps a story nobody published.<br><br><span class="rat-line">Special Agent Rat:</span> “Metal mourns different than water. Find the metal’s grief.”`
+    ],
+    windscale: [
+      `Ash ghosts linger around <b>Windscale</b>. Charcoal halls and half-remembered alarms. Follow the heat, not the headlines—truth glows hotter than rumor.<br><br><span class="rat-line">Special Agent Rat:</span> “Walls or smokestacks, sugar—everything comes apart the same.”`,
+      `The vents still breathe north like a sleeping beast. Fire left a map scorched into the air itself.<br><br><span class="rat-line">Special Agent Rat:</span> “North breath, hot teeth.”`,
+      `A brittle fire sketch shows a tight cluster of pain. Don’t wander; box it in.<br><br><span class="rat-line">Special Agent Rat:</span> “Smoke lies. Ash tells the truth.”`,
+      `A bent thermometer rattles a confession.<br><br><span class="rat-line">Special Agent Rat:</span> “Heat leaves footprints. Count ’em.”`
+    ],
+    goiania: [
+      `In <b>Goiânia</b>, scraps turned to souvenirs and souvenirs turned folks green around the gills. A sparkly blue dust made friends it shouldn’t have. Sweep the trail. Save the day.<br><br><span class="rat-line">Special Agent Rat:</span> “Shiny’s fine—’til it ain’t. Let’s pry it loose.”`,
+      `Blue specks wink from concrete like fallen stars. The west blocks host most of the dancing lights.<br><br><span class="rat-line">Special Agent Rat:</span> “Shiny strolls west. Keep your paws steady.”`,
+      `Decon chalk marks row six clean; don’t waste boots where the work was done.<br><br><span class="rat-line">Special Agent Rat:</span> “Spend sweat where it pays.”`,
+      `Fragments plant false peaks; rings tell the honest distance.<br><br><span class="rat-line">Special Agent Rat:</span> “Read the crown, not the jewel.”`
+    ],
+    kyshtym: [
+      `Maps get fuzzy around <b>Kyshtym (Mayak)</b>. So do memories. The plume’s old—but not asleep. Your suit’s good, your gut’s better. Snoop smart.<br><br><span class="rat-line">Special Agent Rat:</span> “I’ll sniff—y’all smash. Teamwork.”`,
+      `Reeds whisper southeast. The river carried rumors longer than any file.<br><br><span class="rat-line">Special Agent Rat:</span> “Drift says SE. Bias your paws.”`,
+      `Third ring bites the hardest; center is a liar when ghosts walk.<br><br><span class="rat-line">Special Agent Rat:</span> “Stand in the hurt; find its heart.”`,
+      `Compass cards are just polite suggestions.<br><br><span class="rat-line">Special Agent Rat:</span> “Bias the nose, not the pride.”`
+    ],
+    fukushima: [
+      `Seawalls mutter and turbines hum at <b>Fukushima Daiichi</b>. Currents carry secrets. Watch the tides, trust the meter, keep your boots dry-ish.<br><br><span class="rat-line">Special Agent Rat:</span> “If it sloshes, we squish it.”`,
+      `The tide plays courier, nudging west while the north pump gallery sits too quiet for comfort.<br><br><span class="rat-line">Special Agent Rat:</span> “Quiet pipes worry me more.”`,
+      `A drone saw a hot ring; crowns burn honest.<br><br><span class="rat-line">Special Agent Rat:</span> “Circle the crown, don’t dive the core.”`,
+      `Blueprint fragments whisper ductwork secrets.<br><br><span class="rat-line">Special Agent Rat:</span> “Blueprints breathe if you listen.”`
+    ],
+    chernobyl: [
+      `Ferris wheels don’t laugh in <b>Pripyat</b>. But the grass still whispers. The city points without fingers—follow every hint. <b>I can smell the foot… the Elephant’s foot!</b><br><br><span class="rat-line">Special Agent Rat:</span> “Hush now. Tear slow. Hit hard.”`,
+      `Evac maps cleared row seven; your time shouldn’t live there either.<br><br><span class="rat-line">Special Agent Rat:</span> “Spend minutes where time refused to go.”`,
+      `Spikes NE of the wheel; the ground remembers more than the paperwork.<br><br><span class="rat-line">Special Agent Rat:</span> “Read the earth.”`,
+      `Calibrate your ears and your meter until they argue less.<br><br><span class="rat-line">Special Agent Rat:</span> “Harmony finds the source.”`
+    ]
+  };
+
+  /* Victory & Failure quotes */
+  const RAT_VICTORY_QUOTES = [
+    "“Source bagged. Quiet as a church fuse.”",
+    "“That glow had an ego. You had bigger.”",
+    "“Seal it, tag it, onto the next mess.”",
+    "“We leave places boring. That’s the job.”",
+    "“Hot spot humbled. March on.”",
+    "“Sunset’s safer now. Go brag to the moon.”",
+    "“From sizzle to silence—chef’s kiss.”",
+    "“Containment sings sweetest when it’s silent.”",
+    "“No applause, just fewer sirens. Perfect.”",
+    "“Radiance retired. Pensions denied.”",
+    "“You cut the heat like a rumor.”",
+    "“Bagged, tagged, and scientifically unfriendly.”",
+    "“Local wildlife says thanks in tiny squeaks.”"
+  ];
+  const RAT_FAILURE_QUOTES = [
+    "“On the bright side, we found a great place not to picnic.”",
+    "“At least the counters got their steps in.”",
+    "“Containment failed—style points, though.”",
+    "“Well, the source is shy. We’ll be louder.”",
+    "“If clues were sandwiches, we just skipped lunch.”",
+    "“Plot twist: the hotspot dodged us. Rude.”",
+    "“Bad reading? Good clue. Flip the next tile.”",
+    "“Pressure makes diamonds—and better hunters.”",
+    "“Setbacks aren’t failures—just noisy tutorials.”",
+    "“We didn’t lose—we learned where not to stand.”",
+    "“The glow flexed. Next time we flex back harder.”",
+    "“Note to self: fewer dramatics, more scanning.”",
+    "“Hotspot: 1. Ego: 0. We’ll fix both.”",
+    "“Great rehearsal. Now for the show.”",
+    "“Containment took a coffee break. We’re firing it.”",
+    "“We tripped the wire; now we cut it.”"
+  ];
+
+  /* levels (strict order) */
+  const LEVELS = [
+    { id:'kramatorsk', name:'Kramatorsk',    timer:360, grid:10, sources:1, rads:10, intel:6, baseG:0.20, noise:.12, bg:1,
+      drops:[
+        {img:'assets/intel/kram-01.png', text:'Tenants report sickness near stairwell.'},
+        {img:'assets/intel/kram-02.png', text:'Badge readings stronger on lower floors.'},
+        {img:'assets/intel/kram-03.png', text:'Wall repairs noted along column 4.'}
+      ]
+    },
+    { id:'tmi',        name:'Three Mile Island', timer:300, grid:10, sources:1, rads:12, intel:6, baseG:0.22, noise:.10, bg:2,
+      drops:[
+        {img:'assets/intel/tmi-01.png', text:'Activity trending along east loop.'},
+        {img:'assets/intel/tmi-02.png', text:'Coolant routes bypass row 3.'}
+      ]
+    },
+    { id:'windscale',  name:'Windscale',     timer:280, grid:10, sources:1, rads:14, intel:6, baseG:0.35, noise:.20, bg:3,
+      drops:[
+        {img:'assets/intel/wind-01.png', text:'Venting paths trend north.'},
+        {img:'assets/intel/wind-02.png', text:'Fire map marks a tight cluster.'}
+      ]
+    },
+    { id:'goiania',    name:'Goiânia',       timer:260, grid:10, sources:1, rads:14, intel:7, baseG:0.30, noise:.18, bg:4,
+      drops:[
+        {img:'assets/intel/goi-01.png', text:'Scrap yard trail favors the west blocks.'},
+        {img:'assets/intel/goi-02.png', text:'Decon teams cleared row 6.'},
+        {img:'assets/intel/goi-03.png', text:'Hot fragments cause false peaks nearby.'}
+      ]
+    },
+    { id:'kyshtym',    name:'Kyshtym (Mayak)', timer:240, grid:10, sources:1, rads:16, intel:6, baseG:0.32, noise:.22, bg:5,
+      drops:[
+        {img:'assets/intel/kys-01.png', text:'EURT plume suggests southeast drift.'},
+        {img:'assets/intel/kys-02.png', text:'Ring three shows strongest activity.'}
+      ]
+    },
+    { id:'fukushima',  name:'Fukushima Daiichi', timer:240, grid:10, sources:1, rads:18, intel:8, baseG:0.35, noise:.22, bg:6,
+      drops:[
+        {img:'assets/intel/fuku-01.png', text:'Tidal model pushes contamination west.'},
+        {img:'assets/intel/fuku-02.png', text:'North pump gallery isolated.'},
+        {img:'assets/intel/fuku-03.png', text:'Drone sweep marks a hot ring.'},
+        {img:'assets/intel/fuku-04.png', text:'Blueprint fragment reveals nearby ducts.'}
+      ]
+    },
+    { id:'chernobyl',  name:'Chernobyl',     timer:220, grid:10, sources:1, rads:20, intel:8, baseG:0.38, noise:.25, bg:7,
+      drops:[
+        {img:'assets/intel/chernobyl-01.png', text:'Spikes NE of the Ferris wheel.'},
+        {img:'assets/intel/chernobyl-02.png', text:'Evac map shows row 7 cleared.'},
+        {img:'assets/intel/chernobyl-03.png', text:'Maintenance note: nearby loop leak.'},
+        {img:'assets/intel/chernobyl-04.png', text:'Calibration card recovered.'}
+      ]
+    }
+  ];
+
+  /* PROGRESSION: always start from first level on a fresh run */
+  const runProgress = { idx: 0 }; // 0..LEVELS.length-1
+
+  /* STATE */
+  const STATE = {
+    levelIdx:0, running:false, paused:false,
+    size:10, grid:[], found:0,
+    energyMax:100, energy:100,
+    baseG:0.2, noise:0.15, geiger:0,
+    timer:0, handle:null,
+    callsign:'Ranger',
+    scans:0,
+    muted:false
+  };
+
+  /* BEST SCORE (fewest scans) */
+  const getBest = ()=> parseInt(localStorage.getItem('vh_best_scans')||'0',10) || null;
+  const setBest = v => localStorage.setItem('vh_best_scans', String(v));
+
+  /* map size (fixed & square, computed ONLY at start/resize) */
+  function setMapSize(){
+    const pad = 12;
+    const panel = EL.mapPanel.getBoundingClientRect();
+    const headH = EL.mapHead.getBoundingClientRect().height;
+    const footH = EL.mapFoot.getBoundingClientRect().height;
+    const availH = panel.height - headH - footH - pad*2;
+    const availW = panel.width - pad*2;
+    const size = Math.floor(Math.min(availW, availH));
+    const px = Math.max(220, size);
+    EL.map.style.width = px+'px';
+    EL.map.style.height = px+'px';
+  }
+  addEventListener('resize', setMapSize, {passive:true});
+
+  /* LOG */
+  function log(line){
+    const p=document.createElement('p'); p.className='entry'; p.textContent=line;
+    EL.log.appendChild(p); EL.log.scrollTop = EL.log.scrollHeight;
+  }
+
+  /* UI updates */
+  function setCallsign(name){
+    STATE.callsign = (name||'').trim() || randName();
+    EL.csInput.value = STATE.callsign;
+    EL.csPreview.textContent = STATE.callsign;
+    EL.greetName.textContent = STATE.callsign;
+    localStorage.setItem('vh_callsign', STATE.callsign);
+  }
+  function paintStats(){
+    EL.stats.energy.textContent = `${Math.max(0,Math.round(STATE.energy))}%`;
+    EL.stats.source.textContent = `${STATE.found}/1`;
+    EL.stats.geiger.textContent = `${STATE.geiger.toFixed(1)} uSv/h`;
+    const p = Math.max(0, Math.min(1, STATE.energy/STATE.energyMax));
+    EL.suit.style.filter = `brightness(${0.6+0.4*p}) grayscale(${1-p})`;
+  }
+  function paintScans(){ EL.scanCount.textContent = STATE.scans; }
+
+  /* TIMER (mission) — pauses for popups; shown below the map */
+  function clearClock(){ clearInterval(STATE.handle); STATE.handle = null; }
+  function startClock(sec){
+    clearClock();
+    STATE.timer = sec;
+    EL.mapClock.textContent = fmt(STATE.timer);
+    STATE.handle = setInterval(()=>{
+      if(!STATE.running || STATE.paused) return;
+      STATE.timer = Math.max(0, STATE.timer-1);
+      EL.mapClock.textContent = fmt(STATE.timer);
+      if(STATE.timer===0){ clearClock(); finish(false); }
+    },1000);
+  }
+  const pauseTimer = (p=true)=>{ STATE.paused = p; };
+  const resumeTimer = ()=>{ STATE.paused = false; };
+
+  /* GRID */
+  function buildGrid(L){
+    STATE.size = L.grid;
+    const N = STATE.size*STATE.size;
+    const cells = Array.from({length:N}, (_,i)=>({i,type:'empty',hint:0,scanned:false}));
+    const bag = [...cells.keys()];
+    const pull=()=>bag.splice((Math.random()*bag.length)|0,1)[0];
+
+    const src = pull(); cells[src].type='source';
+    for(let n=0;n<L.rads;n++){ const k=pull(); if(cells[k].type==='empty') cells[k].type='radiation'; }
+    for(let n=0;n<L.intel;n++){ const k=pull(); if(cells[k].type==='empty') cells[k].type='intel'; }
+
+    cells.forEach(c=>{
+      const ax=c.i%STATE.size, ay=(c.i/STATE.size)|0;
+      const bx=src%STATE.size,  by=(src/STATE.size)|0;
+      const d=Math.abs(ax-bx)+Math.abs(ay-by);
+      c.hint = Math.max(0,6-Math.min(6,d));
+    });
+    STATE.grid=cells;
+  }
+
+  function renderGrid(){
+    EL.map.innerHTML='';
+    const frag = document.createDocumentFragment();
+    for(const c of STATE.grid){
+      const d=document.createElement('div'); d.className='tile'; d.tabIndex=0; d.dataset.i=c.i;
+      d.addEventListener('click',onScan);
+      d.addEventListener('keydown',e=>{
+        if(e.key===' '||e.key==='Spacebar'||e.key==='Enter'){ e.preventDefault(); onScan.call(d,e); }
+      });
+      frag.appendChild(d);
+    }
+    EL.map.appendChild(frag);
+  }
+
+  function revealTile(c, el){
+    el.classList.add('scanned'); el.textContent='';
+    if(c.type==='source'){ el.classList.add('source'); el.textContent='☢'; }
+    else if(c.type==='radiation'){ el.classList.add('radiation'); el.textContent='≈'; }
+    else if(c.type==='intel'){ el.classList.add('intel'); el.textContent='✶'; }
+    else{ el.classList.add('number'); el.textContent=String(c.hint); }
+  }
+
+  /* MODALS */
+  function closeAll(){ [EL.modHelp, EL.modIntel, EL.modBrief, EL.modEnd, EL.modFinale].forEach(m=>m.classList.add('hidden')); document.body.classList.remove('modal-open'); }
+  function open(el){ closeAll(); document.body.classList.add('modal-open'); el.classList.remove('hidden'); }
+
+  /* AUDIO CONTROL */
+  const AUDIO_ALL = [];
+  function collectAudio(){ AUDIO_ALL.splice(0, AUDIO_ALL.length, ...document.querySelectorAll('audio')); }
+  function setMuted(flag){
+    STATE.muted = !!flag;
+    AUDIO_ALL.forEach(a=> a.muted = STATE.muted);
+    localStorage.setItem('vh_muted', STATE.muted ? '1':'0');
+    EL.btnMute.setAttribute('aria-pressed', STATE.muted ? 'true':'false');
+    EL.btnMute.textContent = STATE.muted ? 'UNMUTE' : 'MUTE';
+  }
+  function playMenuMusic(){
+    try{
+      EL.mus.game.pause(); EL.mus.game.currentTime=0;
+      EL.mus.menu.volume = .75;
+      EL.mus.menu.play().catch(()=>{});
+    }catch{}
+  }
+  function stopMenuMusic(){ try{ EL.mus.menu.pause(); EL.mus.menu.currentTime=0; }catch{} }
+  function playGameMusic(){
+    try{
+      stopMenuMusic();
+      EL.mus.game.volume = .8;
+      EL.mus.game.play().catch(()=>{});
+    }catch{}
+  }
+  function stopGameMusic(){ try{ EL.mus.game.pause(); EL.mus.game.currentTime=0; }catch{} }
+  function stopEndSFX(){ try{ EL.sfx.win.pause(); EL.sfx.win.currentTime=0; EL.sfx.lose.pause(); EL.sfx.lose.currentTime=0; }catch{} }
+
+  /* SCAN */
+  function onScan(){
+    if(document.body.classList.contains('modal-open')) return;
+    if(!STATE.running) return;
+
+    const idx = +this.dataset.i, c = STATE.grid[idx];
+    if(!c || c.scanned) return;
+
+    const L = LEVELS[STATE.levelIdx];
+
+    // scan count (shown beside location)
+    STATE.scans += 1;
+    paintScans();
+
+    // energy + geiger
+    STATE.energy -= 3;
+    STATE.geiger = STATE.baseG + c.hint*.7 + Math.random()*STATE.noise;
+
+    c.scanned=true; revealTile(c, this);
+
+    if(c.type==='source'){
+      STATE.found=1; log(`Contamination source traced at sector ${idx}.`);
+      try{ EL.sfx.hit.currentTime=0; EL.sfx.hit.play(); }catch{}
+      finish(true); return;
+    }else if(c.type==='radiation'){
+      STATE.energy -= 7; log('Radiation pocket! Energy dropping fast.');
+      try{ EL.sfx.rad.currentTime=0; EL.sfx.rad.play(); }catch{}
+    }else if(c.type==='intel'){
+      const drop = L.drops[(Math.random()*L.drops.length)|0] || {img:'assets/intel/fallback-1.png',text:'Sector map fragment recovered.'};
+      log(`Intel recovered: ${drop.text}`);
+      try{ EL.sfx.radio.currentTime=0; EL.sfx.radio.play(); }catch{}
+      pauseTimer(true);
+      EL.intelText.textContent = drop.text;
+      EL.intelImg.src = drop.img;
+      open(EL.modIntel);
+    }else{
+      if(c.hint>=4) log('Hot zone detected. Signals intensifying.');
+      else if(c.hint>=2) log('Moderate activity nearby.');
+      else log('Cold sector. Minimal readings.');
+      try{ EL.sfx.signal.currentTime=0; EL.sfx.signal.play(); }catch{}
+    }
+
+    paintStats();
+    if(STATE.energy<=0) finish(false);
+  }
+
+  /* FLOW */
+  function startLevel(idx){
+    const L = LEVELS[idx] || LEVELS[0];
+    STATE.levelIdx = idx;
+    STATE.running = false; STATE.paused=false;
+    STATE.found = 0;
+    STATE.energy = STATE.energyMax;
+    STATE.baseG = L.baseG;
+    STATE.noise = L.noise;
+    STATE.geiger = L.baseG;
+    STATE.scans = 0;            // reset scans at new level only
+    clearClock();               // new level gets a fresh mission clock
+
+    EL.map.style.backgroundImage = `url("assets/locations/location_${L.bg}.png")`;
+    EL.mapLevel.textContent = `LEVEL ${idx+1}`;
+    EL.mapTitle.textContent = L.name;
+    EL.mapClock.textContent = fmt(L.timer);
+    paintScans();
+
+    EL.log.innerHTML = '';
+    log(`LEVEL ${idx+1}: ${L.name} – Trace the contamination source before time expires.`);
+
+    buildGrid(L); renderGrid();
+
+    // lock the map square size now (and keep it fixed)
+    setMapSize();
+    requestAnimationFrame(setMapSize);
+
+    paintStats();
+
+    // music: ensure main.mp3 plays in levels
+    stopEndSFX();
+    playGameMusic();
+
+    // Briefing: pick one of several full lines per location
+    const lines = LORE[L.id] || [`Special Agent Rat tips his cap. “Let’s pry it loose.”`];
+    const blurb = lines[(Math.random()*lines.length)|0];
+    EL.briefTitle.textContent = `${L.name} — Briefing`;
+    EL.briefBody.innerHTML = blurb;
+    open(EL.modBrief);
+
+    EL.briefGo.onclick = ()=>{
+      closeAll();
+      STATE.running = true;
+      startClock(L.timer);   // timer begins now and pauses only during modals
+    };
+  }
+
+  function showFinale(){
+    const best = getBest();
+    const showBest = (b)=> b==null ? '—' : `${b} scans`;
+    const vq = RAT_VICTORY_QUOTES[(Math.random()*RAT_VICTORY_QUOTES.length)|0];
+
+    EL.finaleText.innerHTML = `
+      Every site went quiet. Counters sleep. The world exhales.<br><br>
+      <em>Special Agent Rat:</em> ${vq}
+    `;
+    EL.finaleBest.textContent = `Best score (fewest scans across missions): ${showBest(best)} • Last level scans: ${STATE.scans}`;
+    open(EL.modFinale);
+
+    // play victory sting and stop game loop music
+    stopGameMusic();
+    try{ EL.sfx.win.currentTime=0; EL.sfx.win.play().catch(()=>{});}catch{}
+
+    EL.finaleClose.onclick = ()=>{
+      stopEndSFX();
+      goToMenu(true, /*resetToFirst*/true);
+    };
+  }
+
+  function finish(win){
+    STATE.running=false; pauseTimer(true); clearClock();
+
+    // if win + last level => show finale instead
+    if(win && STATE.levelIdx === LEVELS.length-1){
+      const best = getBest();
+      if(best==null || STATE.scans < best){ setBest(STATE.scans); }
+      showFinale();
+      return;
+    }
+
+    open(EL.modEnd);
+    stopGameMusic();
+
+    const best = getBest();
+    const showBest = (b)=> b==null ? '—' : `${b} scans`;
+
+    if(win){
+      EL.endTitle.textContent = 'SOURCE ISOLATED';
+      EL.endArt.src = 'victory.png';
+      const vq = RAT_VICTORY_QUOTES[(Math.random()*RAT_VICTORY_QUOTES.length)|0];
+      EL.endText.innerHTML = `Nice work, <b>${STATE.callsign}</b>. Source isolated at <b>${LEVELS[STATE.levelIdx].name}</b>.<br><br><em>Special Agent Rat:</em> ${vq}`;
+
+      try{ EL.sfx.win.currentTime=0; EL.sfx.win.play().catch(()=>{});}catch{}
+
+      // update best score (fewest scans)
+      if(best==null || STATE.scans < best){ setBest(STATE.scans); }
+      EL.endBest.textContent = `Best score (fewest scans): ${showBest(getBest())} • This level: ${STATE.scans} scans`;
+
+      const hasNext = STATE.levelIdx < LEVELS.length-1;
+      EL.endNext.style.display = hasNext ? '' : 'none';
+      EL.endRetry.style.display = '';
+      EL.endClose.style.display = '';
+
+      EL.endNext.textContent = 'NEXT SITE';
+      EL.endNext.onclick = ()=>{
+        stopEndSFX(); // stop victory.mp3 immediately
+        closeAll();
+        startLevel(STATE.levelIdx+1); // main.mp3 resumes in startLevel
+      };
+      EL.endRetry.onclick = ()=>{
+        stopEndSFX();
+        closeAll();
+        startLevel(STATE.levelIdx);
+      };
+      EL.endClose.onclick = ()=>{
+        stopEndSFX();
+        goToMenu(true, /*resetToFirst*/true);
+      };
+
+    } else {
+      EL.endTitle.textContent = 'CONTAINMENT FAILURE';
+      EL.endArt.src = 'rat2.png';
+      const q = RAT_FAILURE_QUOTES[(Math.random()*RAT_FAILURE_QUOTES.length)|0];
+      EL.endText.innerHTML = `Time expired at <b>${LEVELS[STATE.levelIdx].name}</b>.<br><br><em>Special Agent Rat:</em> ${q}`;
+      try{ EL.sfx.lose.currentTime=0; EL.sfx.lose.play().catch(()=>{});}catch{}
+
+      EL.endBest.textContent = `Best score (fewest scans): ${showBest(best)} • This level: ${STATE.scans} scans`;
+
+      EL.endNext.style.display = 'none';
+      EL.endRetry.style.display = 'none';
+      EL.endClose.style.display = '';
+      EL.endClose.onclick = ()=>{
+        stopEndSFX();
+        goToMenu(true, /*resetToFirst*/true);
+      };
+    }
+  }
+
+  /* MENU / GLOBAL */
+  // Start menu music on first user interaction anywhere (required by browsers)
+  addEventListener('pointerdown', ()=>{ playMenuMusic(); }, { once:true, passive:true });
+
+  function goToMenu(resetAudio=false, resetToFirst=false){
+    STATE.running=false; pauseTimer(true); clearClock(); closeAll();
+    if(resetToFirst){ runProgress.idx = 0; }
+    EL.hud.classList.add('hidden'); EL.menu.classList.remove('hidden');
+    if(resetAudio){ playMenuMusic(); }
+  }
+
+  // Name input: ensure SPACE works and never bubbles to tile hotkeys
+  ['keydown','keypress','keyup'].forEach(type=>{
+    EL.csInput.addEventListener(type, e=>{ e.stopPropagation(); }, {passive:false});
+  });
+
+  const savedName = localStorage.getItem('vh_callsign');
+  setCallsign(savedName || randName());
+  EL.csRand.addEventListener('click', ()=> setCallsign(randName()));
+  EL.csInput.addEventListener('input', e=> setCallsign(e.target.value));
+
+  EL.help.addEventListener('click', ()=>{ pauseTimer(true); open(EL.modHelp); });
+  EL.helpClose.addEventListener('click', ()=>{ closeAll(); resumeTimer(); });
+
+  EL.intelClose.addEventListener('click', ()=>{ closeAll(); resumeTimer(); });
+
+  EL.start.addEventListener('click', ()=>{
+    stopMenuMusic();
+    EL.menu.classList.add('hidden');
+    EL.hud.classList.remove('hidden');
+    runProgress.idx = 0;                 // ALWAYS start from level one (Kramatorsk)
+    startLevel(runProgress.idx);
+  });
+
+  EL.btnMenu.addEventListener('click', ()=> goToMenu(true, /*resetToFirst*/true));
+
+  // MUTE toggle (no emoji, same size as MENU because both use .btn.mini)
+  function collectAndApplyMute(){
+    collectAudio();
+    const savedMute = localStorage.getItem('vh_muted')==='1';
+    setMuted(savedMute);
+  }
+  collectAndApplyMute();
+  EL.btnMute.addEventListener('click', ()=> setMuted(!STATE.muted));
+
+  // initial map sizing safeguard
+  setMapSize();
+</script>
+</body>
+</html>

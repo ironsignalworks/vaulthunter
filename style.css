@@ -1,0 +1,145 @@
+/* --- GLOBAL STYLES --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /* ❌ Removed background image */
+  background-color: #121212;
+
+  color: #eee;
+  font-size: 1rem;
+  line-height: 1.4;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+}
+
+/* --- MENU SCREEN --- */
+#menu-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  padding: 2rem 3rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #0f0;
+}
+
+#menu-screen h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  color: #0f0;
+  text-shadow: 0 0 6px #0f0;
+}
+
+#menu-screen button {
+  background-color: #0f0;
+  color: #121212;
+  border: none;
+  border-radius: 5px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+}
+
+#menu-screen button:hover {
+  background-color: #0c0;
+}
+
+/* --- PLAY SCREEN --- */
+#play-screen {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  max-width: 900px;
+  height: 75vh;
+  max-height: 650px;
+  margin: 2rem auto 0 auto;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 12px #0f0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Flex children: left panel, map container, right panel */
+#left-panel, #right-panel, #map-container {
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: auto;
+  color: #ccc;
+  font-size: 0.9rem;
+  box-shadow: inset 0 0 6px #0f0;
+}
+
+#map-container {
+  flex: 2 1 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: 3px;
+}
+
+/* Example map cell style */
+.map-cell {
+  background-color: #0a0;
+  border-radius: 3px;
+  border: 1px solid #040;
+  width: 100%;
+  height: 100%;
+}
+
+/* Scrollbars */
+#left-panel::-webkit-scrollbar,
+#right-panel::-webkit-scrollbar,
+#map-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+#left-panel::-webkit-scrollbar-thumb,
+#right-panel::-webkit-scrollbar-thumb,
+#map-container::-webkit-scrollbar-thumb {
+  background-color: #0f0;
+  border-radius: 4px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  #play-screen {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+  }
+
+  #left-panel, #right-panel, #map-container {
+    flex: none;
+    width: 100%;
+    height: auto;
+    min-width: auto;
+  }
+
+  #map-container {
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    margin-bottom: 1rem;
+  }
+}
