@@ -17,14 +17,10 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico" />
 <link rel="icon" type="image/png" href="favicon.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-<!-- optional: remove if you don't host site.webmanifest to avoid 404s -->
 <link rel="manifest" href="site.webmanifest" />
 
 <!-- SEO / Social share -->
-<link rel="canonical" href="https://ironsignalworks.github.io/vaulthunter/" />
 <meta name="description" content="Hunt the source. Contain the glow. Join Special Agent Rat in a tile-scanning thriller across infamous hotspots." />
-
-<!-- Open Graph -->
 <meta property="og:site_name" content="VAULT HUNTER" />
 <meta property="og:title" content="VAULT HUNTER" />
 <meta property="og:description" content="Hunt the source. Contain the glow. Join Special Agent Rat in a tile-scanning thriller across infamous hotspots." />
@@ -37,13 +33,6 @@
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content="VAULT HUNTER — Special Agent Rat and the Geiger-lit mission board" />
-
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="VAULT HUNTER" />
-<meta name="twitter:description" content="Hunt the source. Contain the glow. Join Special Agent Rat in a tile-scanning thriller across infamous hotspots." />
-<meta name="twitter:image" content="https://ironsignalworks.github.io/vaulthunter/vh_card.png" />
-<meta name="twitter:image:alt" content="VAULT HUNTER — Special Agent Rat and the Geiger-lit mission board" />
 
 <!-- Font -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -143,7 +132,7 @@
     gap:clamp(10px,2vh,20px);
     align-items:center;
     justify-items:center;
-    place-self:center;     /* dead center */
+    place-self:center;
     margin:auto;
     padding:4px;
     grid-auto-rows:min-content;
@@ -177,10 +166,7 @@
     box-shadow:0 0 0 var(--px) #2e2210 inset,0 0 0 calc(var(--px)*2) #1a1308 inset;
     display:grid;grid-template-columns:1fr auto;gap:10px;justify-items:start;align-items:center;
   }
-  .callsign p{
-    margin:0;color:var(--ink-dim);
-    font-size:var(--cs-note-size); line-height:1.15;
-  }
+  .callsign p{margin:0;color:var(--ink-dim);font-size:var(--cs-note-size);line-height:1.15}
 
   /* ============== HUD (3 panels) ============== */
   #hud{display:grid;grid-template-columns:26rem 1fr 26rem;gap:var(--gap);min-height:0;height:100%}
@@ -223,7 +209,8 @@
     display:grid;
     grid-template-columns:repeat(10, minmax(0, 1fr));
     grid-template-rows:repeat(10, 1fr);
-    gap:2px;
+    /* single clean grid: overlay only */
+    gap:0;
     background-color:var(--grid);
     background-image:url("assets/locations/location_1.png");
     background-size:cover;background-position:center;
@@ -232,11 +219,12 @@
     overflow:hidden;position:relative;
     -webkit-tap-highlight-color: transparent;
   }
+  /* overlay grid aligned to 10×10 tiles */
   #map::after{
-    content:"";position:absolute;inset:2px;pointer-events:none;
+    content:"";position:absolute;inset:0;pointer-events:none;
     background:
-      repeating-linear-gradient(0deg,rgba(255,200,80,.10) 0 1px,transparent 1px 72px),
-      repeating-linear-gradient(90deg,rgba(255,200,80,.10) 0 1px,transparent 1px 72px);
+      repeating-linear-gradient(to bottom, rgba(255,200,80,.10) 0 1px, transparent 1px calc(10%)),
+      repeating-linear-gradient(to right,  rgba(255,200,80,.10) 0 1px, transparent 1px calc(10%));
     box-shadow:inset 0 0 0 2px rgba(140,62,16,.18);
   }
   .tile{
@@ -244,12 +232,12 @@
     display:flex;align-items:center;justify-content:center;
     background:linear-gradient(135deg,rgba(24,20,12,.96),rgba(18,16,10,.96)),
                repeating-linear-gradient(45deg,rgba(255,200,80,.06) 0 2px,rgba(255,200,80,0) 2px 4px);
-    color:var(--ink-dim);cursor:pointer;outline:1px solid rgba(70,53,22,.35);
+    color:var(--ink-dim);cursor:pointer;
+    outline:0; /* remove extra grid lines */
     transition:opacity .25s ease;
     font-size:var(--brief-body-size);line-height:1;font-variant-numeric:tabular-nums;
   }
   .tile.scanned{background:transparent;color:var(--ink)}
-  /* brighter numbers for readability */
   .tile.scanned.number{
     color:var(--yellow);
     text-shadow:0 0 4px rgba(0,0,0,.85);
@@ -348,7 +336,7 @@
   @media (max-width:520px){
     .hero .line2{font-size:clamp(2.6rem,12vw,4rem)}
     .hero .line1{font-size:clamp(1rem,4vw,1.4rem)}
-    #map{gap:1px;border-width:4px}
+    #map{border-width:4px}
     .btn{min-height:46px}
     .callsign{grid-template-columns:1fr auto}
     #map-head{font-size:clamp(1.05rem,3.8vw,1.3rem)}
@@ -530,7 +518,6 @@
 
   /* helpers */
   const $ = (s, r = document) => r.querySelector(s);
-  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const fmt = s => `${String((s / 60) | 0).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
   /* prevent closing overlays with ESC while open */
@@ -648,23 +635,34 @@
   const getBest = ()=> parseInt(localStorage.getItem('vh_best_scans')||'0',10) || null;
   const setBest = v => localStorage.setItem('vh_best_scans', String(v));
 
-  /* MAP SIZE — account for padding and row gaps so no cropping */
+  /* MAP SIZE — subtract panel borders and map border so nothing gets cropped */
   function setMapSize(){
     const panelRect = EL.mapPanel.getBoundingClientRect();
-    const cs = getComputedStyle(EL.mapPanel);
-    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-    const rowGap = parseFloat(cs.rowGap) || 0;
+    const ps = getComputedStyle(EL.mapPanel);
+    const borderX = parseFloat(ps.borderLeftWidth) + parseFloat(ps.borderRightWidth);
+    const borderY = parseFloat(ps.borderTopWidth) + parseFloat(ps.borderBottomWidth);
+    const padX = parseFloat(ps.paddingLeft) + parseFloat(ps.paddingRight);
+    const padY = parseFloat(ps.paddingTop) + parseFloat(ps.paddingBottom);
+    const rowGap = parseFloat(ps.rowGap) || 0;
 
     const headH = EL.mapHead.getBoundingClientRect().height;
     const footH = EL.mapFoot.getBoundingClientRect().height;
 
-    const innerW = panelRect.width  - padX;
-    const innerH = panelRect.height - padY - headH - footH - (rowGap*2);
+    // available space inside panel content box
+    const innerW = panelRect.width  - borderX - padX;
+    const innerH = panelRect.height - borderY - padY - headH - footH - (rowGap*2);
 
-    const side = Math.floor(Math.max(160, Math.min(innerW, innerH)));
-    EL.map.style.width  = side + 'px';
-    EL.map.style.height = side + 'px';
+    // subtract the map's own border so the *outer* size still fits
+    const ms = getComputedStyle(EL.map);
+    const mapBorderX = (parseFloat(ms.borderLeftWidth) + parseFloat(ms.borderRightWidth)) || 0;
+    const mapBorderY = (parseFloat(ms.borderTopWidth) + parseFloat(ms.borderBottomWidth)) || 0;
+    const borderMax = Math.max(mapBorderX, mapBorderY);
+
+    const allowedOuter = Math.max(160, Math.min(innerW, innerH));
+    const contentSide = Math.floor(Math.max(160, allowedOuter - borderMax));
+
+    EL.map.style.width  = contentSide + 'px';
+    EL.map.style.height = contentSide + 'px';
   }
   addEventListener('resize', setMapSize, {passive:true});
   addEventListener('orientationchange', ()=>{ setVH(); requestAnimationFrame(setMapSize); }, {passive:true});
@@ -679,7 +677,6 @@
   function setCallsign(name){
     STATE.callsign = (name||'').trim() || randName();
     EL.csPreview.textContent = STATE.callsign;
-    // greet area updates after game panel appears
     localStorage.setItem('vh_callsign', STATE.callsign);
   }
 
@@ -945,12 +942,11 @@
   EL.helpClose.addEventListener('click', ()=>{ closeAll(); resumeTimer(); });
   EL.intelClose.addEventListener('click', ()=>{ closeAll(); resumeTimer(); });
 
-  // ✅ fixed typo here (dot before addEventListener)
   EL.start.addEventListener('click', ()=>{
     stopMenuMusic();
     EL.menu.classList.add('hidden');
     EL.hud.classList.remove('hidden');
-    runProgress.idx = 0;
+    runProgress.idx = 0;                 // always start at level 1
     document.getElementById('greet-name').textContent = STATE.callsign;
     startLevel(runProgress.idx);
   });
