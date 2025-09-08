@@ -1,0 +1,44 @@
+VAULT HUNTER — Technical Notes
+================================
+
+Build: HTML5 (Vanilla JS/CSS), single-page app
+Author: Iron Signal Works
+Contact: web@ironsignalworks.com
+Site: https://ironsignalworks.github.io/vaulthunter/
+
+Performance targets
+-------------------
+• 60 FPS on modern desktop and mid-range mobile
+• Initial load < 2 MB transferred (audio lazy-loaded)
+• Memory footprint < 100 MB in active play
+
+Compatibility
+-------------
+Desktop
+  • Windows 10/11: Chrome 114+, Edge 114+, Firefox 115+
+  • macOS 12+: Safari 15+, Chrome 114+, Firefox 115+
+  • Linux: Latest Chrome/Chromium or Firefox
+
+Mobile
+  • iOS/iPadOS 15+: Safari/Chrome (PWA supported)
+  • Android 9+: Chrome 114+ (PWA install supported)
+
+Minimum display: 360x640. Touch, mouse, and keyboard supported.
+Audio optional (mute toggle).
+
+Accessibility
+-------------
+• High-contrast color palette
+• Large monospace type with scalable CSS clamp() sizes
+• Keyboard focusable grid cells with Space/Enter activation
+• No rapid strobing; subtle CRT lines only
+
+Hosting
+-------
+Static hosting compatible (GitHub Pages/Netlify/etc.).
+All assets are relative URLs. Caching headers recommended.
+Service worker optional for offline/PWA.
+
+Attribution
+-----------
+Music/SFX: internal assets. All trademarks belong to their owners.
