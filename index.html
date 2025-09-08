@@ -170,40 +170,54 @@
 
 /* ---- Brand link under the callsign box ---- */
 .brand-link{
-  grid-column: 1 / -1;          /* span full width of the .callsign grid */
-  justify-self: center;         /* center the whole link block */
+  justify-self: center;        /* center inside .actions grid */
   display: inline-grid;
-  grid-auto-flow: column;       /* logo then text, side-by-side */
+  grid-auto-flow: column;      /* logo + text side-by-side */
   align-items: center;
-  gap: 8px;                     /* space between logo and text */
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 6px;
   text-decoration: none;
-  text-align: center;           /* centers the text inside */
+  text-align: center;
   color: var(--ink-dim);
   opacity: .98;
 }
 
 .brand-link span{
- font-size: clamp(0.95rem, 2.4vw, 1.2rem);  line-height: 1.15;
+  font-size: clamp(1.5rem, 2.4vw, 1.2rem);  /* tweak size here */
+  line-height: 1.15;
 }
 
 .brand-link img{
-  height: 38px;                    /* tweak as needed */
+  height: 34px;
   width: auto;
-  image-rendering: auto;           /* keep logos sharp */
+  image-rendering: auto;
   border: 0;
   filter: grayscale(.15) contrast(1.05);
 }
 
 .brand-link:hover,
-.brand-link:focus-visible{
-  color: var(--yellow);
-  outline: none;
+.brand-link:focus-visible{ color: var(--yellow); outline: none; }
+.brand-link:hover img,
+.brand-link:focus-visible img{ filter: none; }
+:root{
+  --brand-blue: #108993;   /* your brand blue */
 }
 
-.brand-link:hover img,
-.brand-link:focus-visible img{
-  filter: none;
+/* keep the link text blue in all states */
+.brand-link,
+.brand-link:link,
+.brand-link:visited{
+  color: var(--brand-blue);
+}
+
+.brand-link span{
+  color: inherit;          /* make sure the span stays blue too */
+}
+
+/* optional: slightly brighter on hover/focus */
+.brand-link:hover,
+.brand-link:focus-visible{
+  color: #13a0ab;          /* tweak or keep the same as --brand-blue */
 }
 
 @media (max-width:520px){
@@ -394,29 +408,31 @@
   <div id="scale">
     <div id="game" role="application" aria-label="VAULT HUNTER">
 
-      <!-- ============== MAIN MENU ============== -->
-      <section id="menu">
-        <div class="menu-wrap">
-          <div class="hero">
-            <h1 class="line1">IRON SIGNAL WORKS PRESENTS</h1>
-            <h1 class="line2">VAULT HUNTER</h1>
-          </div>
+<!-- ============== MAIN MENU ============== -->
+<section id="menu">
+  <div class="menu-wrap">
+    <div class="hero">
+      <h1 class="line1">IRON SIGNAL WORKS PRESENTS</h1>
+      <h1 class="line2">VAULT HUNTER</h1>
+    </div>
 
-          <div class="actions">
-            <button id="btn-start" class="btn">[ START MISSION ]</button>
-            <button id="btn-help" class="btn">[ INSTRUCTIONS ]</button>
+    <div class="actions">
+      <button id="btn-start" class="btn">[ START MISSION ]</button>
+      <button id="btn-help" class="btn">[ INSTRUCTIONS ]</button>
 
-            <div class="callsign">
-              <p>Howdy <b id="cs-preview">Ranger</b></p>
-              <button id="cs-rand" class="btn" style="width:auto">RANDOM NAME</button>
-<a class="brand-link" href="https://ironsignalworks.com" target="_blank" rel="noopener">
-  <img src="logo.png" alt="Iron Signal Works logo">
-  <span>Iron Signal Works — Cold Code, Hot Circuits.</span>
-</a>
+      <div class="callsign">
+        <p>Howdy <b id="cs-preview">Ranger</b></p>
+        <button id="cs-rand" class="btn" style="width:auto">RANDOM NAME</button>
+      </div>
 
-            </div>
-          </div>
-        </div>
+      <!-- put the brand link BELOW the name box -->
+      <a class="brand-link" href="https://ironsignalworks.com" target="_blank" rel="noopener">
+        <img src="logo.png" alt="Iron Signal Works logo">
+        <span>Iron Signal Works — Cold Code, Hot Circuits.</span>
+      </a>
+    </div>
+  </div>
+</section>
 
         <!-- audio -->
         <audio id="mus-menu" preload="none" loop><source src="music/menu.mp3" type="audio/mpeg" /></audio>
