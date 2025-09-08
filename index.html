@@ -168,6 +168,49 @@
   }
   .callsign p{margin:0;color:var(--ink-dim);font-size:var(--cs-note-size);line-height:1.15}
 
+/* ---- Brand link under the callsign box ---- */
+.brand-link{
+  grid-column: 1 / -1;          /* span full width of the .callsign grid */
+  justify-self: center;         /* center the whole link block */
+  display: inline-grid;
+  grid-auto-flow: column;       /* logo then text, side-by-side */
+  align-items: center;
+  gap: 8px;                     /* space between logo and text */
+  margin-top: 10px;
+  text-decoration: none;
+  text-align: center;           /* centers the text inside */
+  color: var(--ink-dim);
+  opacity: .98;
+}
+
+.brand-link span{
+ font-size: clamp(0.95rem, 2.4vw, 1.2rem);  line-height: 1.15;
+}
+
+.brand-link img{
+  height: 38px;                    /* tweak as needed */
+  width: auto;
+  image-rendering: auto;           /* keep logos sharp */
+  border: 0;
+  filter: grayscale(.15) contrast(1.05);
+}
+
+.brand-link:hover,
+.brand-link:focus-visible{
+  color: var(--yellow);
+  outline: none;
+}
+
+.brand-link:hover img,
+.brand-link:focus-visible img{
+  filter: none;
+}
+
+@media (max-width:520px){
+  .brand-link img{ height: 34px; }
+  .brand-link span{ font-size: clamp(0.9rem,3vw,1.05rem); }
+}
+
   /* ============== HUD (3 panels) ============== */
   #hud{display:grid;grid-template-columns:26rem 1fr 26rem;gap:var(--gap);min-height:0;height:100%}
   .panel{
@@ -366,6 +409,11 @@
             <div class="callsign">
               <p>Howdy <b id="cs-preview">Ranger</b></p>
               <button id="cs-rand" class="btn" style="width:auto">RANDOM NAME</button>
+<a class="brand-link" href="https://ironsignalworks.com" target="_blank" rel="noopener">
+  <img src="logo.png" alt="Iron Signal Works logo">
+  <span>Iron Signal Works — Cold Code, Hot Circuits.</span>
+</a>
+
             </div>
           </div>
         </div>
