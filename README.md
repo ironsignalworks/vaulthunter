@@ -88,4 +88,4 @@ Then open `http://localhost:8000` in your browser.
 
 ## Contact
 
-✉️ web@ironsignalworks.com
+web@ironsignalworks.com
